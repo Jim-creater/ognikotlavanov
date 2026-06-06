@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ОГНИ КОТЛОВАНОВ — сериал</title>
+<meta name="description" content="Огни Котлованов — драматическая сага о мире, пережившем Великую Стужу. Постапокалипсис, альтернативная история, социальная драма.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap&subset=cyrillic,cyrillic-ext,latin" rel="stylesheet">
+<style>
+/* ---------- custom display font for the tagline ---------- */
+@font-face{
+  font-family:"Operation Napalm";
+  src:url("fonts/operation-napalm.woff2") format("woff2"),
+      url("fonts/operation-napalm.woff")  format("woff"),
+      url("fonts/operation-napalm.ttf")   format("truetype");
+  font-weight:normal;
+  font-style:normal;
+  font-display:swap;
+}
+:root{
+  --bg:#0a0c0f;
+  --bg-2:#10151a;
+  --ice:#bcd6e4;
+  --ice-dim:#8aa9bc;
+  --ice-deep:#1c2b36;
+  --fire:#ef7a1e;
+  --fire-soft:#ffb066;
+  --red:#9a1b1b;
+  --red-bright:#c0392b;
+  --text:#e9eef1;
+  --text-dim:#a6b6bf;
+  --text-mute:#6f8089;
+  --line:rgba(188,214,228,.14);
+  --display:"Oswald", sans-serif;
+  --body:"PT Sans", sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{
+  font-family:var(--body);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+/* ---------- grain + snow overlays ---------- */
+.grain{
+  position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#snow{position:fixed;inset:0;z-index:3;pointer-events:none}
+
+/* ---------- sound toggle ---------- */
+.sound{position:fixed;right:1.2rem;bottom:1.2rem;z-index:60;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(8,11,14,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  color:var(--fire-soft);font-size:1.15rem;cursor:pointer;transition:.25s;display:flex;align-items:center;justify-content:center}
+.sound:hover{border-color:var(--fire);color:#fff}
+.sound.off{color:var(--text-mute)}
+
+/* ---------- teaser video ---------- */
+.video-frame{max-width:960px;margin:0 auto;aspect-ratio:16/9;background:#000;border:1px solid var(--line);
+  border-radius:6px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.video-frame video{width:100%;height:100%;display:block}
+
+/* ---------- media placeholder system ---------- */
+.media{position:relative;overflow:hidden;background:var(--ice-deep)}
+.media>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s}
+.media>img.miss{opacity:0}
+.media>img.only-mobile{display:none}
+.ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:300;letter-spacing:.08em;font-size:.7rem;
+  color:rgba(188,214,228,.4);text-transform:lowercase;text-align:center;padding:1rem;z-index:0;
+}
+
+/* ---------- navigation ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:center;gap:clamp(1rem,3vw,3.2rem);
+  padding:1.1rem 2rem;transition:background .4s,padding .4s,backdrop-filter .4s;
+}
+nav.scrolled{background:rgba(8,11,14,.82);backdrop-filter:blur(12px);padding:.7rem 2rem;border-bottom:1px solid var(--line)}
+nav a.navlink{
+  font-family:var(--display);font-weight:500;font-size:.82rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text);opacity:.85;transition:opacity .25s,color .25s;position:relative;white-space:nowrap;
+}
+nav a.navlink:hover{opacity:1;color:var(--fire-soft)}
+.brand{display:flex;flex-direction:column;align-items:center;line-height:1;padding:0 .6rem}
+.brand .mark{font-size:1.1rem;letter-spacing:.05em}
+.brand .name{font-family:var(--display);font-weight:600;font-size:.72rem;letter-spacing:.22em;margin-top:.18rem;color:var(--ice)}
+.brand .logo{height:38px;width:auto;display:block;image-rendering:auto}
+nav.scrolled .brand .logo{height:32px;transition:height .4s}
+footer .bc img.logo{height:34px;width:auto;margin:0 auto;opacity:.85}
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;position:absolute;right:1.4rem;top:1.1rem}
+.burger span{width:26px;height:2px;background:var(--text);transition:.3s}
+
+/* ---------- generic section ---------- */
+section{position:relative}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1.2rem,5vw,2rem)}
+.eyebrow{font-family:var(--display);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--fire-soft);font-size:.78rem;margin-bottom:1rem}
+h2.display{
+  font-family:var(--display);font-weight:700;font-style:italic;text-transform:uppercase;
+  font-size:clamp(2rem,5.2vw,3.6rem);line-height:.98;letter-spacing:.01em;margin-bottom:1.6rem;
+}
+h3{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+p{color:var(--text-dim);font-size:1.02rem;margin-bottom:1rem}
+p:last-child{margin-bottom:0}
+p,h1,h2,h3,h4,.tag-big,.check span,.bullet span,.role p,.cap p,.orb p{text-wrap:pretty}
+
+/* readable backdrop for text over busy photos */
+.readpanel{
+  background:linear-gradient(100deg,rgba(7,10,13,.82) 0%,rgba(7,10,13,.6) 55%,rgba(7,10,13,.15) 100%);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  padding:clamp(1.6rem,4vw,2.6rem);border-radius:6px;border-left:3px solid var(--fire);
+}
+.readpanel h2.display{margin-bottom:1.2rem}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ===================== HERO ===================== */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center;padding:7rem 1rem 3rem}
+#hero .media{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#3c5667 0%,#1b2b37 45%,#0a141c 100%)}
+#hero .media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,18,.35) 0%,rgba(10,14,18,.15) 50%,rgba(10,14,18,.9) 100%);z-index:1}
+.hero-inner{position:relative;z-index:2;max-width:1100px}
+.hero-tag{font-family:var(--display);font-weight:300;letter-spacing:.5em;text-transform:uppercase;color:var(--ice-dim);font-size:.8rem;margin-bottom:1.4rem}
+.hero-title{font-family:var(--display);font-weight:700;text-transform:uppercase;line-height:.86;color:#cfe2ec;
+  font-size:clamp(3.4rem,13vw,10rem);letter-spacing:.01em;
+  text-shadow:0 4px 40px rgba(0,0,0,.55),0 0 70px rgba(120,170,200,.25);}
+.hero-sub{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.45em;color:var(--ice-dim);margin-top:1.4rem;font-size:clamp(1rem,2.4vw,1.6rem)}
+.hero-sub span{display:block;opacity:.55}
+.hero-meta{position:absolute;left:0;right:0;bottom:2.4rem;z-index:2;display:flex;justify-content:center;gap:clamp(2rem,8vw,7rem);flex-wrap:wrap;padding:0 1.5rem;font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-size:.82rem;color:var(--ice-dim)}
+.hero-meta b{color:var(--red-bright)}
+.scroll-cue{position:absolute;bottom:.6rem;left:50%;transform:translateX(-50%);z-index:2;width:1px;height:38px;background:linear-gradient(var(--fire),transparent);animation:cue 2s infinite}
+@keyframes cue{0%{opacity:0;transform:translate(-50%,-12px)}50%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+
+/* ===================== full-bleed bg sections ===================== */
+.bgsec{position:relative;padding:clamp(5rem,12vh,9rem) 0;overflow:hidden}
+.bgsec>.media{position:absolute;inset:0;z-index:0}
+.bgsec .scrim{position:absolute;inset:0;z-index:1}
+.bgsec .wrap{position:relative;z-index:2}
+
+/* tagline */
+#tagline .media{background:radial-gradient(100% 120% at 80% 20%,#2a3640,#0d1318)}
+#tagline .scrim{background:linear-gradient(90deg,rgba(8,11,14,.85) 0%,rgba(8,11,14,.45) 60%,rgba(8,11,14,.2) 100%)}
+.tag-big{font-family:"Operation Napalm",var(--display);font-weight:300;text-transform:lowercase;color:rgba(206,226,236,.5);
+  font-size:clamp(3rem,9vw,7rem);line-height:.95;letter-spacing:.01em;margin-bottom:2.6rem;max-width:14ch}
+.checks{display:flex;flex-direction:column;gap:1.3rem;max-width:560px;margin-bottom:2.6rem}
+.check{display:flex;align-items:center;gap:1.3rem}
+.check .bar{width:120px;height:10px;flex:none;background:linear-gradient(90deg,var(--red),rgba(154,27,27,0));filter:blur(.3px)}
+.check span{font-family:var(--display);font-weight:500;font-size:1.15rem;letter-spacing:.02em}
+.lede{max-width:620px}
+
+/* synopsis */
+#synopsis .media{background:linear-gradient(180deg,#1a1714 0%,#0c0a09 100%)}
+#synopsis .scrim{background:linear-gradient(90deg,rgba(8,11,14,.7),rgba(8,11,14,.2))}
+.synopsis-box{max-width:680px}
+.synopsis-box p:first-of-type{color:var(--text);font-size:1.15rem;font-weight:700}
+
+/* ===================== timelines ===================== */
+#timelines .media{background:linear-gradient(180deg,#26323a,#0c1318)}
+#timelines .scrim{background:linear-gradient(180deg,rgba(8,11,14,.55),rgba(8,11,14,.9))}
+.tl-head{display:flex;gap:0;align-items:flex-start;flex-wrap:wrap;margin:1.5rem 0 3rem}
+.tl-year{position:relative;padding-right:2.4rem;margin-right:2.4rem}
+.tl-year:not(:last-child)::after{content:"";position:absolute;right:0;top:.6rem;width:2.2rem;height:2px;background:var(--ice-dim);opacity:.5}
+.tl-year .y{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ice)}
+.tl-year .c{font-size:.92rem;color:var(--text-mute);text-transform:uppercase;letter-spacing:.06em;font-family:var(--display)}
+.block-title{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.block-title h3{font-size:clamp(1.8rem,5vw,2.8rem);font-style:italic}
+.block-title .small{font-family:var(--display);color:var(--text-mute);font-size:1rem}
+.roles{display:grid;gap:1.4rem;margin-top:1.6rem;max-width:680px}
+.role h4{font-family:var(--display);font-weight:600;text-transform:uppercase;color:var(--fire-soft);letter-spacing:.04em;margin-bottom:.2rem}
+
+/* exodus / vertical generic two-col */
+#exodus .media{background:linear-gradient(180deg,#232b30,#0b1014)}
+#exodus .scrim{background:linear-gradient(90deg,rgba(8,11,14,.35),rgba(8,11,14,.85))}
+#exodus .wrap{display:flex;justify-content:flex-end}
+#vertical .media{background:radial-gradient(120% 100% at 60% 80%,#3a2410 0%,#13161a 55%,#0a0d10 100%)}
+#vertical .scrim{background:linear-gradient(180deg,rgba(8,11,14,.8),rgba(8,11,14,.5))}
+.col-text{max-width:560px}
+.col-text .q{font-style:italic;color:var(--ice);font-size:1.1rem}
+
+/* ===================== weaving ===================== */
+#weaving .media{background:linear-gradient(180deg,#2c3a44,#0c151b)}
+#weaving .scrim{background:linear-gradient(180deg,rgba(8,11,14,.5),rgba(8,11,14,.85))}
+.weave{position:relative;padding-left:2.4rem;max-width:760px}
+.weave::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--red-bright),var(--red),rgba(154,27,27,.2))}
+.weave-item{position:relative;margin-bottom:2.6rem}
+.weave-item::before{content:"";position:absolute;left:-2.4rem;top:.55rem;width:14px;height:14px;border:3px solid var(--red-bright);background:var(--bg);border-radius:1px}
+.weave-item .yr{font-family:var(--display);font-weight:700;font-size:1.9rem;color:var(--red-bright);margin-bottom:.4rem;line-height:1}
+.weave-item p{
+  background:linear-gradient(100deg,rgba(7,10,13,.78),rgba(7,10,13,.6));
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  padding:.9rem 1.15rem;border-radius:6px;color:var(--text);
+}
+
+/* ===================== characters ===================== */
+#characters{padding:clamp(5rem,12vh,9rem) 0;background:linear-gradient(180deg,#0a0d10,#11151a)}
+.char-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2.4rem 3rem;margin-top:2.6rem}
+.char{display:flex;gap:1.6rem;align-items:flex-start}
+.char .photo{width:150px;flex:none}
+.char .photo .media{aspect-ratio:3/4;border-radius:2px;box-shadow:0 18px 40px rgba(0,0,0,.55);transform:rotate(-2deg);border:6px solid #d8cbb0;background:linear-gradient(160deg,#5a5048,#2a2620)}
+.char:nth-child(even) .photo .media{transform:rotate(2deg)}
+.char .info h3{color:var(--fire-soft);font-size:1.25rem;margin-bottom:.5rem}
+.char .info p{font-size:.96rem}
+
+/* ===================== craters ===================== */
+#craters .media{background:radial-gradient(90% 90% at 85% 60%,#1a2730 0%,#0a0e12 60%)}
+#craters .scrim{background:linear-gradient(90deg,rgba(8,11,14,.95) 0%,rgba(8,11,14,.8) 38%,rgba(8,11,14,.25) 62%,rgba(8,11,14,0) 100%)}
+#craters .wrap{margin:0 0 0 clamp(1.5rem,15vw,27rem);max-width:720px}
+#craters .duo{max-width:440px;gap:1.1rem}
+#craters .orb{padding:1.5rem 1.1rem}
+#craters .orb h3{font-size:1.2rem;margin-bottom:.4rem}
+#craters .orb p{font-size:.84rem}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin:2.4rem 0;max-width:680px}
+.orb{padding:2.2rem 1.8rem;border-radius:50%;aspect-ratio:1;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.orb.fire{background:radial-gradient(circle at 40% 40%,rgba(239,122,30,.32),rgba(239,122,30,0) 70%)}
+.orb.cold{background:radial-gradient(circle at 60% 50%,rgba(120,170,200,.3),rgba(120,170,200,0) 70%)}
+.orb h3{font-size:1.5rem;margin-bottom:.6rem}
+.orb.fire h3{color:var(--fire-soft)}
+.orb.cold h3{color:var(--ice)}
+.orb p{font-size:.92rem}
+
+/* ===================== truth ===================== */
+#truth .media{background:radial-gradient(80% 80% at 70% 80%,#2a1d10,#080a0c 70%)}
+#truth .scrim{background:linear-gradient(90deg,rgba(8,11,14,.85),rgba(8,11,14,.25))}
+
+/* ===================== references ===================== */
+#refs{padding:clamp(5rem,12vh,9rem) 0;background:linear-gradient(180deg,#0c0f12,#16191d)}
+.ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2.8rem}
+.ref{text-align:center}
+.ref .media{aspect-ratio:2/3;border-radius:6px;box-shadow:0 16px 40px rgba(0,0,0,.55);background:linear-gradient(160deg,#222a30,#0e1316);border:1px solid var(--line)}
+.ref h3{margin-top:1.1rem;font-size:1.2rem}
+.ref .en{font-family:var(--display);color:var(--ice-dim);letter-spacing:.06em;font-size:.95rem;margin-bottom:.5rem}
+
+/* ===================== authors words ===================== */
+#words .media{background:linear-gradient(180deg,#1c1a17,#0a0c0f)}
+#words .scrim{background:linear-gradient(90deg,rgba(8,11,14,.8),rgba(8,11,14,.4))}
+.words-box{max-width:720px}
+
+/* ===================== strategy ===================== */
+#strategy .media{background:linear-gradient(180deg,#222b31,#0a0e12)}
+#strategy .scrim{background:linear-gradient(180deg,rgba(8,11,14,.6),rgba(8,11,14,.85))}
+.puzzle{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin:2.4rem 0;max-width:760px}
+.piece{background:rgba(16,21,26,.6);border:1px solid var(--line);backdrop-filter:blur(6px);padding:2rem 1.8rem;text-align:center;border-radius:4px}
+.piece h3{color:var(--ice);font-size:1.15rem;margin-bottom:.7rem}
+.piece p{font-size:.92rem}
+
+/* ===================== audience ===================== */
+#audience .media{background:linear-gradient(180deg,#2a3640,#0b1116)}
+#audience .scrim{background:linear-gradient(180deg,rgba(8,11,14,.55),rgba(8,11,14,.88))}
+.aud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem;margin:2.4rem 0}
+.aud-card{background:rgba(12,16,20,.55);border:1px solid var(--line);backdrop-filter:blur(6px);padding:1.8rem;border-radius:4px}
+.aud-card h3{color:var(--fire-soft);font-size:1.2rem;margin-bottom:.8rem}
+.aud-card p{font-size:.92rem}
+.us{max-width:720px;margin-top:1rem}
+.us h3{font-style:italic;font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:1rem}
+
+/* ===================== parable ===================== */
+#parable .media{background:radial-gradient(90% 90% at 90% 50%,#1c2228,#0a0d10 60%)}
+#parable .scrim{background:linear-gradient(90deg,rgba(8,11,14,.92),rgba(8,11,14,.35))}
+.bullets{display:grid;gap:1.2rem;margin:2rem 0;max-width:520px}
+.bullet{display:flex;align-items:center;gap:1.2rem}
+.bullet .bar{width:90px;height:9px;flex:none;background:linear-gradient(90deg,var(--red),rgba(154,27,27,0))}
+.bullet span{font-family:var(--display);font-size:1.05rem}
+
+/* ===================== carousel (team + cast) ===================== */
+.carousel-sec{padding:clamp(5rem,12vh,9rem) 0;background:linear-gradient(180deg,#0a0d10,#13171b)}
+.carousel-sec.cast{background:linear-gradient(180deg,#13171b,#0a0d10)}
+.car-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:2.4rem;flex-wrap:wrap}
+.car-btns{display:flex;gap:.7rem}
+.car-btns button{width:48px;height:48px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);font-size:1.3rem;cursor:pointer;border-radius:50%;transition:.25s;display:flex;align-items:center;justify-content:center}
+.car-btns button:hover{background:var(--fire);border-color:var(--fire);color:#0a0d10}
+.track{display:flex;gap:1.8rem;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:1rem;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.card{flex:0 0 clamp(280px,80vw,360px);scroll-snap-align:start;display:flex;flex-direction:column}
+.card .media{aspect-ratio:3/4;border-radius:3px;box-shadow:0 16px 40px rgba(0,0,0,.5);background:linear-gradient(160deg,#2a3138,#0e1316);border:1px solid var(--line)}
+.card.aged .media{border:6px solid #d8cbb0;background:linear-gradient(160deg,#5a5048,#2a2620);transform:rotate(-1.5deg)}
+.card .cap{padding:1.2rem .2rem 0}
+.card .cap h3{font-size:1.35rem;margin-bottom:.3rem}
+.card .cap .role{font-family:var(--display);color:var(--fire-soft);font-style:italic;letter-spacing:.03em;margin-bottom:.6rem;font-size:1rem}
+.card .cap p{font-size:.9rem}
+
+/* ===================== footer ===================== */
+footer{position:relative;overflow:hidden;background:#070a0c;padding:4rem 1rem 3rem;text-align:center;border-top:1px solid var(--line)}
+footer>.media{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,#16191d,#070a0c)}
+footer .scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,14,.62),rgba(8,11,14,.82))}
+footer>.fire-line,footer>.credit,footer>.bc{position:relative;z-index:2}
+footer .fire-line{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(1.4rem,4vw,2.2rem);color:var(--fire-soft);margin-bottom:2rem}
+footer .credit{font-family:var(--display);letter-spacing:.06em}
+footer .credit .label{color:var(--text-mute);font-size:.82rem;text-transform:uppercase;letter-spacing:.18em}
+footer .credit .nm{font-size:1.15rem;color:var(--text);margin:.2rem 0 1.6rem}
+footer .mail{display:inline-flex;align-items:center;gap:.6rem;color:var(--ice);font-size:1.05rem;border:1px solid var(--line);padding:.7rem 1.4rem;border-radius:40px;transition:.25s}
+footer .mail:hover{border-color:var(--fire);color:var(--fire-soft)}
+footer .bc{margin-top:2.4rem;font-family:var(--display);letter-spacing:.24em;color:var(--text-mute);font-size:.72rem}
+
+/* ===================== responsive ===================== */
+/* ---- tablets & large phones ---- */
+@media(max-width:880px){
+  nav{justify-content:flex-start;gap:0}
+  nav .navlink{display:none}
+  nav.open .navlink{display:block}
+  nav.open{flex-direction:column;align-items:flex-start;gap:1.1rem;background:rgba(8,11,14,.96);backdrop-filter:blur(14px);padding:5rem 2rem 2rem}
+  .brand{position:absolute;left:1.6rem;top:.8rem;align-items:flex-start}
+  nav.open .brand{position:static}
+  .burger{display:flex}
+  nav.open .burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  nav.open .burger span:nth-child(2){opacity:0}
+  nav.open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .char-grid{grid-template-columns:1fr}
+  .ref-grid,.aud-grid{grid-template-columns:repeat(2,1fr)}
+  .duo,.puzzle{grid-template-columns:1fr}
+  .duo{max-width:340px;margin-inline:auto}
+  #exodus .wrap{justify-content:flex-start}
+  #craters .wrap{margin-left:0;max-width:100%}
+}
+
+/* ---- phones ---- */
+@media(max-width:560px){
+  .media>img.only-desktop{display:none}
+  .media>img.only-mobile{display:block}
+  #hero{padding:6rem 1.1rem 3.4rem;min-height:88vh}
+  .hero-meta{position:static;bottom:auto;margin-top:2.4rem;flex-direction:column;align-items:center;gap:.55rem;text-align:center}
+  .hero-sub{letter-spacing:.26em}
+  .scroll-cue{display:none}
+
+  .bgsec{padding:clamp(3.4rem,9vh,5.5rem) 0}
+  #characters,#refs,.carousel-sec{padding:clamp(3.4rem,9vh,5.5rem) 0}
+
+  .tag-big{font-size:clamp(2.3rem,11vw,3.4rem);max-width:none}
+
+  .char{flex-direction:row;gap:1.2rem}
+  .char .photo{width:118px}
+
+  .ref-grid{gap:1.4rem}
+  .aud-grid{grid-template-columns:1fr}
+
+  /* orbs become rounded cards so text reads comfortably */
+  .duo{grid-template-columns:1fr;max-width:100%;gap:1.2rem}
+  #craters .duo{max-width:100%}
+  .orb{aspect-ratio:auto;border-radius:16px;padding:1.7rem 1.5rem;text-align:left}
+
+  .car-btns button{width:42px;height:42px;font-size:1.15rem}
+  .sound{right:.9rem;bottom:.9rem;width:42px;height:42px}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<canvas id="snow"></canvas>
+<audio id="bgm" src="BG.mp3" loop preload="auto"></audio>
+<button id="sound" class="sound" aria-label="Звук" title="Музыка вкл/выкл">♪</button>
+
+<!-- ===== NAV ===== -->
+<nav id="nav">
+  <a href="#hero" class="navlink">Теглайн</a>
+  <a href="#synopsis" class="navlink">Синопсис</a>
+  <a href="#hero" class="brand"><img class="logo" src="black cobra logo.png" alt="Black Cobra"></a>
+  <a href="#project" class="navlink">О проекте</a>
+  <a href="#team" class="navlink">Авторы</a>
+  <a href="#teaser" class="navlink">Тизер</a>
+  <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="media">
+    <img class="only-desktop" src="images/hero-face.jpg" alt="" onerror="this.classList.add('miss')">
+    <img class="only-mobile" src="images/hero-face2.png" alt="" onerror="this.classList.add('miss')">
+  </div>
+  <div class="hero-inner">
+    <div class="hero-tag">Black Cobra представляет</div>
+    <h1 class="hero-title">ОГНИ<br>КОТЛОВАНОВ</h1>
+    <div class="hero-sub">Сериал<span>Скоро</span></div>
+  </div>
+  <div class="hero-meta">
+    <div>1 сезон · <b>8 серий</b></div>
+    <div>хронометраж: <b>50–60 мин</b></div>
+    <div>постапокалипсис / альт-история / драма</div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+
+<!-- ===== TAGLINE ===== -->
+<section id="tagline" class="bgsec">
+  <div class="media"><img src="images/tagline-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="tag-big">Когда тепло стало властью</div>
+    <div class="checks">
+      <div class="check"><span class="bar"></span><span>Разработана вселенная</span></div>
+      <div class="check"><span class="bar"></span><span>Сформирована сезонная арка</span></div>
+      <div class="check"><span class="bar"></span><span>Прописаны три временные линии повествования</span></div>
+    </div>
+    <div class="lede">
+      <p>После аномальной цепной реакции 1945 года Земля погружается в вечную зиму. К 1965-му человечество уходит под землю и начинает новую жизнь в гигантских газовых кратерах.</p>
+      <p>В 2020 году тепло становится привилегией, вода — валютой, а правда о катастрофе — запретным знанием.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SYNOPSIS ===== -->
+<section id="synopsis" class="bgsec">
+  <div class="media"><img src="images/synopsis-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="eyebrow">Синопсис</div>
+    <div class="synopsis-box">
+      <p>«Огни Котлованов» — многослойная драматическая сага о мире, пережившем Великую Стужу.</p>
+      <p>В этой альтернативной истории всё ломается в 1945-м: бомбардировка Хиросимы идёт «не по плану», и вместо локального удара запускается аномальная реакция с частицами атмосферы. Планету накрывает радиационное облако, рождаются смертельные циклоны, температура в пике падает до −150 °C, начинается «Великая Стужа». Средняя температура мира — около −60 °C, и поверхность становится местом, где человек не в состоянии выжить.</p>
+      <p>Природный газ — «Голубое дыхание» — вырывается из недр и горит в гигантских кратерах. В глубине этих котлованов появляется тепло, свет, возможность выживания. К 1965 году человечество становится подземной цивилизацией, цепляющейся за огонь, как за бога.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TIMELINES ===== -->
+<section id="project" class="bgsec">
+  <div class="media"><img src="images/timeline-1945.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim" style="background:linear-gradient(180deg,rgba(8,11,14,.55),rgba(8,11,14,.9))"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Три временные линии</h2>
+    <div class="tl-head">
+      <div class="tl-year"><div class="y">1945</div><div class="c">за полгода до Взрыва</div></div>
+      <div class="tl-year"><div class="y">1965</div><div class="c">Великий Исход</div></div>
+      <div class="tl-year"><div class="y">2020</div><div class="c">Вертикальный мир</div></div>
+    </div>
+    <div class="block-title"><h3>До взрыва</h3><span class="small">1945 год</span></div>
+    <p style="max-width:680px"><strong style="color:var(--ice)">Главный конфликт: сказать правду — или сохранить порядок.</strong></p>
+    <p style="max-width:680px">Группа учёных-физиков обнаруживает: расчёты проекта «Манхэттен» ошибочны и могут привести к катастрофе планетарного масштаба. Государство принимает закрытое решение: срочно оборудовать газовые кратеры паровым/инженерным оборудованием как будущие убежища на случай апокалипсиса. На строительство отправляют несколько инженерных групп, но почти никто не знает истинной причины и масштаба происходящего.</p>
+    <div class="roles">
+      <div class="role"><h4>Прораб</h4><p>Единственный, кто понимает, что «там наверху» конец близко.</p></div>
+      <div class="role"><h4>Инженер-учёный</h4><p>Держит расчёты и время «Х».</p></div>
+      <div class="role"><h4>Рабочие</h4><p>Обычные люди, которым приказывают строить спасение, не объясняя, от чего именно.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXODUS ===== -->
+<section id="exodus" class="bgsec">
+  <div class="media"><img src="images/exodus-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="col-text">
+      <div class="block-title"><h3>Великий исход</h3><span class="small">1965 год</span></div>
+      <p class="q">Кто достоин быть ближе к огню? Этот вопрос рождает жёсткую социальную иерархию и определяет судьбы целых поколений.</p>
+      <p>Спустя 20 лет после Взрыва. Эра «Великого Исхода»: планета замерзает всё сильнее, люди стекаются к кратерам, и хаос превращается в порядок — но такой, где мораль становится роскошью.</p>
+      <p>Формируются первые общины и первая жёсткая иерархия: «кто достоин места у огня». Эта линия показывает, как рождаются правила будущего — то самое «снежное право» и селекция, которые в 2020-м будут выглядеть как традиция, хотя на самом деле это просто старый страх.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VERTICAL ===== -->
+<section id="vertical" class="bgsec">
+  <div class="media"><img src="images/vertical-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="col-text">
+      <div class="block-title"><h3>Вертикальный мир</h3><span class="small">2020 год</span></div>
+      <p>Настоящее время. Мир окончательно стал вертикальным обществом. Внизу, у пламени — «Элита Огня»: тепло, свет, синтетическая еда, власть и право решать. Наверху, у края ледяной бездны — «Заиндевелые», обслуживающие газовые вышки и инфраструктуру в условиях холода. Здесь вода — валюта, тепло — привилегия, а человеческая жизнь давно переведена в расчётный материал.</p>
+      <p class="q">Найдётся ли человек, который приведёт людей к новой эпохе, ведь «Голубое дыхание» не будет гореть вечно.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WEAVING ===== -->
+<section id="weaving" class="bgsec">
+  <div class="media"><img src="images/weaving-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Сплетение времён</h2>
+    <div class="eyebrow" style="margin-top:-.6rem;margin-bottom:2.4rem">Как линии начинают сжиматься в один узел</div>
+    <div class="weave">
+      <div class="weave-item">
+        <div class="yr">1945</div>
+        <p>Показывает зарождение котлованов как проекта спасения — но спасения, построенного на лжи и секретности. Прораб держит людей в неведении, инженер требует ускорения этапов, рабочие чувствуют, что их используют, но ещё не понимают масштаба. Нарастают трения: саботаж, страх, подозрения. Драма здесь интимная: маленький стройгородок, осень, бумага с расчётами, грязь на сапогах — и ощущение, что кто-то уже живёт в мире, который ещё не наступил.</p>
+      </div>
+      <div class="weave-item">
+        <div class="yr">1965</div>
+        <p>Показывает, как на месте «временного убежища» вырастает цивилизация. В Альфераце формируется управляемый порядок, в Нембусе — распад. Эти две модели становятся предками будущей элиты и будущих «заиндевелых». Решения лидеров — кого согреть, кого выгнать, кого пустить внутрь — не исчезают: они превращаются в традиции, религию огня и культуру оправдания жестокости.</p>
+      </div>
+      <div class="weave-item">
+        <div class="yr">2020</div>
+        <p>Точка кипения. Герой, понимая, что газ уходит, пытается найти иной выход, кроме «снежного права». Он видит, что элита готова сохранить тепло для избранных, даже если придётся «обнулить» верхние ярусы. В ответ наверху зреет бунт: люди больше не верят, что правила справедливы, потому что правила даже не скрывают своей цели — сохранять власть у огня.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CHARACTERS ===== -->
+<section id="characters">
+  <div class="wrap">
+    <div class="reveal">
+      <h2 class="display">Участники истории</h2>
+      <p style="max-width:620px">В центре драмы — сложные, многогранные персонажи, каждый из которых борется за выживание и своё место в этом новом, жестоком мире.</p>
+    </div>
+    <div class="char-grid">
+      <div class="char reveal">
+        <div class="photo"><div class="media"><img src="images/char-foreman.png" alt="" onerror="this.classList.add('miss')"></div></div>
+        <div class="info"><h3>Прораб стройки</h3><p>Управляющий рабочими, которые оборудуют кратеры для возможного апокалипсиса. Кроме него никто не знает, что происходит в мире. Именно он решает, что и когда сказать рабочим: посеять панику или скрыть правду.</p></div>
+      </div>
+      <div class="char reveal">
+        <div class="photo"><div class="media"><img src="images/char-leader.png" alt="" onerror="this.classList.add('miss')"></div></div>
+        <div class="info"><h3>Глава поселения «Альферац»</h3><p>Его задача — чтобы люди выжили, любой ценой. Следовать морали или стать тираном ради выживания поселения — с этим вопросом ему предстоит разобраться.</p></div>
+      </div>
+      <div class="char reveal">
+        <div class="photo"><div class="media"><img src="images/char-engineer.png" alt="" onerror="this.classList.add('miss')"></div></div>
+        <div class="info"><h3>Инженер-учёный</h3><p>Он знает правду, у него есть расчёты и время, когда произойдёт взрыв. Он говорит, когда нужно завершить тот или иной этап стройки.</p></div>
+      </div>
+      <div class="char reveal">
+        <div class="photo"><div class="media"><img src="images/char-witness.png" alt="" onerror="this.classList.add('miss')"></div></div>
+        <div class="info"><h3>Она — свидетель и инструмент «снежного права»</h3><p>Представитель Заиндевелых показывает зрителю не идеологию элит и не романтику выживальщиков, а цену «порядка»: как выглядит жизнь, когда тебя годами держат на расстоянии от тепла и достоинства.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CRATERS ===== -->
+<section id="craters" class="bgsec">
+  <div class="media">
+    <img class="only-desktop" src="images/craters-bg.jpg" alt="" onerror="this.classList.add('miss')">
+    <img class="only-mobile" src="images/craters-bg2.png" alt="" onerror="this.classList.add('miss')">
+  </div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Мир кратеров</h2>
+    <p style="max-width:560px">Кратер — это не просто убежище, это город-государство. Со своей религией, жёсткими правилами и сложной иерархией. Это мир, где:</p>
+    <div class="duo">
+      <div class="orb fire"><h3>Огонь</h3><p>И бог, и проклятие, дарующее жизнь и создающее пропасть между людьми.</p></div>
+      <div class="orb cold"><h3>Холод</h3><p>Постоянное напоминание о конце, угроза, формирующая культуру выживания.</p></div>
+    </div>
+    <p style="max-width:560px">Каждый кратер — уникальная экосистема, борющаяся за своё существование в условиях вечной мерзлоты.</p>
+  </div>
+</section>
+
+<!-- ===== TRUTH ===== -->
+<section id="truth" class="bgsec">
+  <div class="media"><img src="images/truth-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="readpanel" style="max-width:720px">
+      <h2 class="display">История о человеке,<br>системе и истине</h2>
+      <p>«Огни Котлованов» — это не просто постапокалипсис. Это глубокое исследование человеческой природы, где дефицит превращает человека в часть бездушной системы, а страх становится фундаментом для новой религии. Мы покажем, как хрупкая правда способна разрушить даже самый устойчивый порядок.</p>
+      <p>Мы создаём мир, в котором физический холод становится мощной метафорой холодной и безжалостной власти.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== REFERENCES ===== -->
+<section id="refs">
+  <div class="wrap">
+    <h2 class="display reveal">Кинематографические референсы</h2>
+    <div class="ref-grid">
+      <div class="ref reveal">
+        <div class="media"><img src="images/ref-snowpiercer.jpg" alt="" onerror="this.classList.add('miss')"></div>
+        <h3>«Сквозь снег»</h3><div class="en">Snowpiercer</div>
+        <p>Социальная иерархия, выживание в экстремальных условиях, борьба за ресурсы.</p>
+      </div>
+      <div class="ref reveal">
+        <div class="media"><img src="images/ref-tlou.jpg" alt="" onerror="this.classList.add('miss')"></div>
+        <h3>«Одни из нас»</h3><div class="en">The Last of Us</div>
+        <p>Эмоциональная глубина, постапокалиптическая атмосфера, выживание в разрушенном мире.</p>
+      </div>
+      <div class="ref reveal">
+        <div class="media"><img src="images/ref-frostpunk.jpg" alt="" onerror="this.classList.add('miss')"></div>
+        <h3>«Фростпанк»</h3><div class="en">Frostpunk</div>
+        <p>Управление ресурсами, моральные дилеммы, холод как враг человечества.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WORDS ===== -->
+<section id="words" class="bgsec">
+  <div class="media"><img src="images/authors-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <div class="readpanel" style="max-width:780px">
+      <h2 class="display">Слова авторов</h2>
+      <div class="words-box" style="max-width:none">
+        <p>«Огни Котлованов» родились из простого, почти детского вопроса: что остаётся от человека, когда вокруг нет «нормальной жизни» — есть только холод, темнота и необходимость выбирать? Нас интересует не катастрофа, а то, что начинается после неё: когда выживание превращается в быт, быт — в систему, а система — в идеологию.</p>
+        <p>Этот мир устроен вертикально не только физически, но и морально. В котловане можно буквально измерить власть метрами: чем ближе к источнику энергии — тем больше возможностей, еды, защиты, права на голос. Но самое страшное в том, что такая схема рождается не из «злых людей», а из логики дефицита. Не потому что кто-то мечтал стать тираном, а потому что кто-то однажды сказал: «иначе мы не выживем». И это «иначе» становится главным врагом.</p>
+        <p>Для нас важна и форма. «Огни Котлованов» — это сериал, который можно почувствовать кожей. Мы сознательно строим визуальный язык через физику холода: иней на ресницах, влажный металл, пар в воздухе, конденсат на стенах, тяжесть мокрой ткани. Не «красивые декорации», а среда, которая давит на дыхание.</p>
+        <p>Наши герои не спасают человечество — они пытаются не потерять себя. И именно поэтому в их судьбах отражается будущее целой системы.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STRATEGY ===== -->
+<section id="strategy" class="bgsec">
+  <div class="media"><img src="images/strategy-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Стратегия продвижения<br>и визуальная идентичность</h2>
+    <p style="max-width:520px">Три временные линии, переплетающиеся в единую сложную историю.</p>
+    <div class="puzzle">
+      <div class="piece"><h3>Платформенное продвижение</h3><p>Партнёрство с ведущими мировыми стриминговыми платформами.</p></div>
+      <div class="piece"><h3>Трейлер-событие</h3><p>Запуск грандиозного трейлера, приуроченного к «Великому Циклону».</p></div>
+      <div class="piece"><h3>Вирусный образ</h3><p>Создание узнаваемого образа вертикального общества и его проблем.</p></div>
+      <div class="piece"><h3>Визуальная айдентика</h3><p>Мощный контраст «огонь против льда» как основа брендинга.</p></div>
+    </div>
+    <p style="max-width:520px">Проект обладает высоким потенциалом для международной дистрибуции в жанре премиальной научно-фантастической драмы.</p>
+  </div>
+</section>
+
+<!-- ===== AUDIENCE ===== -->
+<section id="audience" class="bgsec">
+  <div class="media"><img src="images/audience-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Кому он нужен</h2>
+    <div class="aud-grid">
+      <div class="aud-card"><h3>Зрителю</h3><p>Потому что это история про нас сегодняшних, только без защитных слоёв. «Огни Котлованов» дают безопасное расстояние, чтобы задать опасные вопросы: когда мы оправдываем жестокость «необходимостью»? Почему так легко привыкнуть к несправедливости, если она оформлена как порядок? Что мы готовы отдать за тепло — и кого?</p></div>
+      <div class="aud-card"><h3>Платформе</h3><p>Потому что это «высококонцептуальная» история, легко объяснимая одним образом и сразу узнаваемая визуально. Сильная айдентика и расширяющийся мир: три временные линии, разные котлованы, потенциал для новых сезонов, спин-оффов и антологии внутри одного бренда.</p></div>
+      <div class="aud-card"><h3>Инвестору и партнёрам</h3><p>Потому что у проекта редкое сочетание: масштабный мир, понятный эмоциональный крючок и визуальная уникальность. История читается международно — она про универсальные вещи: ресурс, власть, мораль, цену порядка.</p></div>
+    </div>
+    <div class="us">
+      <h3>А ещё он нужен нам самим</h3>
+      <p>Как способ проговорить то, что обычно заметают под ковёр: что цивилизация держится не на красивых словах, а на выборе, который мы делаем, когда никто не видит. «Огни Котлованов» — это сериал о том, что иногда человечность начинается там, где заканчиваются оправдания.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARABLE ===== -->
+<section id="parable" class="bgsec">
+  <div class="media"><img src="images/social-bg.jpg" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="wrap reveal">
+    <h2 class="display">Притча<br>о современном мире</h2>
+    <div class="eyebrow" style="margin-top:-.6rem">Аудитория и смыслы · Социальный эффект</div>
+    <p style="max-width:520px">Сериал поднимает острые вопросы:</p>
+    <div class="bullets">
+      <div class="bullet"><span class="bar"></span><span>Социальное расслоение и несправедливость</span></div>
+      <div class="bullet"><span class="bar"></span><span>Ресурсная зависимость и её последствия</span></div>
+      <div class="bullet"><span class="bar"></span><span>Этика выживания в условиях краха цивилизации</span></div>
+      <div class="bullet"><span class="bar"></span><span>Манипуляция страхом как инструмент власти</span></div>
+    </div>
+    <p style="max-width:520px">«Огни Котлованов» — это не просто история, а притча о современном мире, рассказанная через призму холодного будущего.</p>
+  </div>
+</section>
+
+<!-- ===== TEAM ===== -->
+<section id="team" class="carousel-sec">
+  <div class="wrap">
+    <div class="car-head reveal">
+      <h2 class="display" style="margin:0">Авторы</h2>
+      <div class="car-btns"><button data-car="team" data-dir="-1">‹</button><button data-car="team" data-dir="1">›</button></div>
+    </div>
+    <div class="track" id="track-team">
+      <div class="card aged"><div class="media"><img src="images/team-kobrakova.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Светлана Кобракова</h3><div class="role">Генеральный продюсер</div><p>25 лет в индустрии кино и телевидения. Более 750 проектов.</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-kobozev.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Станислав Кобозев</h3><div class="role">Автор идеи · Актёр</div><p>В 2022 окончил ГИТИС.</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-kachurin.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Дмитрий Качурин</h3><div class="role">Автор идеи · Режиссёр</div><p>В 2023 окончил «ГИТР». Лауреат всероссийских и международных наград.</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-nevrov.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Фёдор Невров</h3><div class="role">Оператор</div><p>Окончил ВГИК, мастерскую И. С. Клебанова, И. В. Дёмина, Е. Н. Давыдова.</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-legkova.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Анастасия Легкова</h3><div class="role">Оператор</div><p>В 2025 окончила «ГИТР».</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-gudilin.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Владимир Гудилин</h3><div class="role">Художник-постановщик</div><p>Лауреат всероссийских и международных наград.</p></div></div>
+      <div class="card aged"><div class="media"><img src="images/team-dyminskaya.png" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Екатерина Дыминская</h3><div class="role">Художник по костюмам</div><p>Лауреат всероссийских и международных наград.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CAST ===== -->
+<section id="cast" class="carousel-sec cast">
+  <div class="wrap">
+    <div class="car-head reveal">
+      <h2 class="display" style="margin:0">Дримкаст</h2>
+      <div class="car-btns"><button data-car="cast" data-dir="-1">‹</button><button data-car="cast" data-dir="1">›</button></div>
+    </div>
+    <div class="track" id="track-cast">
+      <div class="card"><div class="media"><img src="images/cast-konyzheva.jpg" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Дарья Коныжева</h3><div class="role">Она — свидетель «снежного права»</div><p>Представитель Заиндевелых показывает зрителю цену «порядка»: как выглядит жизнь, когда тебя годами держат на расстоянии от тепла и достоинства.</p></div></div>
+      <div class="card"><div class="media"><img src="images/cast-porechenkov.jpg" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Михаил Пореченков</h3><div class="role">Прораб стройки</div><p>Управляющий рабочими, которые оборудуют кратеры. Кроме него никто не знает, что происходит в мире. Именно он решает, что и когда сказать рабочим.</p></div></div>
+      <div class="card"><div class="media"><img src="images/cast-lysenkov.jpg" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Дмитрий Лысенков</h3><div class="role">Инженер-учёный</div><p>Он знает правду, у него есть расчёты и время, когда произойдёт взрыв. Он говорит, когда нужно завершить тот или иной этап стройки.</p></div></div>
+      <div class="card"><div class="media"><img src="images/cast-kobozev.jpg" alt="" onerror="this.classList.add('miss')"></div><div class="cap"><h3>Станислав Кобозев</h3><div class="role">Глава поселения «Альферац»</div><p>Его задача — чтобы люди выжили любой ценой. Следовать морали или стать тираном ради выживания поселения.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TEASER ===== -->
+<section id="teaser" style="padding:clamp(5rem,12vh,9rem) 0;background:linear-gradient(180deg,#0a0d10,#070a0c)">
+  <div class="wrap reveal">
+    <h2 class="display" style="text-align:center">Тизер</h2>
+    <p style="text-align:center;max-width:560px;margin:0 auto 2.6rem">«Pit Lights» — первый взгляд на мир Котлованов.</p>
+    <div class="video-frame">
+      <video controls preload="metadata" playsinline>
+        <source src="Pit Lights.mp4" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="media"><img src="images/bg-last-page.png" alt="" onerror="this.classList.add('miss')"></div>
+  <div class="scrim"></div>
+  <div class="fire-line reveal">До встречи у огня!</div>
+  <div class="credit reveal">
+    <div class="label">Генеральный продюсер</div>
+    <div class="nm">Светлана Кобракова</div>
+    <a class="mail" href="mailto:black.cobra.kino@gmail.com">✉ black.cobra.kino@gmail.com</a>
+  </div>
+  <div class="bc"><img class="logo" src="black cobra logo.png" alt="Black Cobra"></div>
+</footer>
+
+<script>
+/* ---- nav scroll state + mobile ---- */
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+const burger=document.getElementById('burger');
+burger.addEventListener('click',()=>nav.classList.toggle('open'));
+document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+
+/* ---- reveal on scroll ---- */
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---- carousels ---- */
+document.querySelectorAll('.car-btns button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const track=document.getElementById('track-'+btn.dataset.car);
+    const card=track.querySelector('.card');
+    const step=card.getBoundingClientRect().width+ parseFloat(getComputedStyle(track).gap||28);
+    track.scrollBy({left:step*btn.dataset.dir,behavior:'smooth'});
+  });
+});
+
+/* ---- typography: glue short words / prepositions, avoid orphans ---- */
+(function(){
+  const skip=new Set(['SCRIPT','STYLE','NOSCRIPT','CANVAS']);
+  const short=/([\s\u00A0(«"„\-]|^)([А-Яа-яЁё]{1,2}|для|или|что|как|без|под|над|при|про|так|уже|ещё|его|ему|нас|вас|это|был|где)\u0020+/g;
+  const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>(!skip.has(n.parentNode.nodeName)&&n.nodeValue.trim())?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT});
+  let n;
+  while(n=tw.nextNode()){
+    let t=n.nodeValue,prev;
+    do{prev=t;t=t.replace(short,'$1$2\u00A0');}while(t!==prev);
+    t=t.replace(/ ([—–]) /g,'\u00A0$1 ');
+    n.nodeValue=t;
+  }
+})();
+
+/* ---- background music (quiet autoplay + first-interaction fallback) ---- */
+(function(){
+  const a=document.getElementById('bgm'), btn=document.getElementById('sound');
+  if(!a||!btn) return;
+  a.volume=0.15;                                  // тихо (0.0–1.0)
+  function refresh(){btn.classList.toggle('off',a.paused);}
+  function play(){a.play().then(refresh).catch(refresh);}
+  btn.addEventListener('click',()=>{a.paused?play():(a.pause(),refresh());});
+  play();                                         // пробуем сразу
+  const once=()=>{if(a.paused)play();['pointerdown','keydown','scroll'].forEach(e=>window.removeEventListener(e,once));};
+  ['pointerdown','keydown','scroll'].forEach(e=>window.addEventListener(e,once,{passive:true}));
+  refresh();
+})();
+
+/* ---- snow ---- */
+const c=document.getElementById('snow'),x=c.getContext('2d');
+let W,H,flakes;
+function size(){W=c.width=innerWidth;H=c.height=innerHeight;
+  const n=Math.min(90,Math.round(W/16));
+  flakes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,s:Math.random()*.6+.2,d:Math.random()*Math.PI*2}));}
+size();addEventListener('resize',size);
+function draw(){x.clearRect(0,0,W,H);x.fillStyle='rgba(210,228,238,.55)';
+  flakes.forEach(f=>{f.y+=f.s;f.x+=Math.sin(f.d+=0.01)*.3;if(f.y>H){f.y=-5;f.x=Math.random()*W}
+    x.beginPath();x.arc(f.x,f.y,f.r,0,7);x.fill();});
+  requestAnimationFrame(draw);}
+draw();
+</script>
+</body>
+</html>
